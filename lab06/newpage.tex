@@ -1,0 +1,190 @@
+\newpage
+\section{Цифровая модуляция}
+
+\subsection{Цель работы}
+Изучение методов модуляции цировых сигналов.
+
+\subsection{Постановка задачи}
+\begin{enumerate}
+\item Получить сигналы BPSK, PSK, OQPSK, genQAM, MSK модуляторов.
+\item Построить их сигнальные созвездия.
+\item Провести сравнение изученных методов модуляции цифровых сигналов.
+\end{enumerate}
+
+\subsection{Ход работы}
+Цифровая модуляция и демодуляция включают в себя две стадии. При модуляции цифровое сообщение сначала преобразуется в аналоговый модулирующий сигнал с помощью функции modmap, а затем осуществляется аналоговая модуляция. При демодуляции сначала получается аналоговый демодулированный сигнал, а затем он преобразуется в цифровое сообщение с помощью функции demodmap.
+
+Аналоговый несущий сигнал модулируется цифровым битовым потоком.
+Существуют три фундаментальных типа цифровой модуляции (или шифтинга) и один гибридный:
+\begin{enumerate}
+\item ASK – Amplitude shift keying (Амплитудная двоичная модуляция).
+\item FSK – Frequency shift keying (Частотая двоичная модуляция).
+\item PSK – Phase shift keying (Фазовая двоичная модуляция).
+\item ASK/PSK.
+\end{enumerate}
+Одна из частных реализаций схемы ASK/PSK, которая называется QAM - Quadrature Amplitude Modulation (квадратурная амплитудная модуляция (КАМ). Это метод объединения двух AM-сигналов в одном канале. Он позваляет удвоить эффективную пропускную способность. В QAM используется две несущих с одинаковой частотой но с разницей в фазе на четверть периода (отсюда и возникает слово квадратура). 
+Частотная модуляция представляет логическую единицу интервалом с большей частотой, чем ноль.
+Фазовый шифтинг представляет «0» как сигнал без сдвига, а «1» как сигнал со сдвигом.
+
+BPSK : используется единственный сдвиг фазы между «0» и «1» — 180 градусов, половина периода.
+Существуют также QPSK:
+QPSK использует 4 различных сдвига фазы (по четверти периода) и может кодировать 2 бита в символе (01, 11, 00, 10). 
+
+Реализация различных типов модуляций с помощью MATLAB:
+\begin{verbatim}
+%BPSK
+h = modem.pskmod('M', 2);
+g = modem.pskdemod('M', 2);
+msg = randint(10,1,2)
+modSignal = modulate(h,msg);
+errSignal = (randerr(1,10, 3) ./ 30)';
+modSignal = modSignal + errSignal;
+demodSignal = demodulate(g,modSignal);
+scatterplot(modSignal);
+
+
+%PSK modulation
+h = modem.pskmod('M', 8);
+g = modem.pskdemod('M', 8);
+msg = randint(10,1,8);
+modSignal = modulate(h,msg);
+errSignal = (randerr(1,10, 3) ./ 30)';
+modSignal = modSignal + errSignal;
+demodSignal = demodulate(g,modSignal);
+scatterplot(modSignal);
+
+%OQPSK modulation
+h = modem.oqpskmod;
+g = modem.oqpskdemod;
+msg = randint(200,1,4);
+modSignal = modulate(h,msg);
+errSignal = (randerr(1,400, 100) ./ 30)';
+modSignal = modSignal + errSignal;
+demodSignal = demodulate(g,modSignal);
+scatterplot(modSignal);
+
+%genQAM
+M = 10;
+h = modem.genqammod('Constellation', exp(j*2*pi*[0:M-1]/M));
+g = modem.genqamdemod('Constellation', exp(j*2*pi*[0:M-1]/M));
+msg = randint(10,1,8);
+modSignal = modulate(h,msg);
+errSignal = (randerr(1,10, 3) ./ 30)';
+modSignal = modSignal + errSignal;
+demodSignal = demodulate(g,modSignal);
+scatterplot(modSignal);
+                                   
+
+%MSK modulation
+h = modem.mskmod('SamplesPerSymbol', 10);
+g = modem.mskdemod('SamplesPerSymbol', 10);
+msg = randint(10,1,2);
+modSignal = modulate(h, msg);
+errSignal = (randerr(1,100, 3) ./ 30)';
+modSignal = modSignal + errSignal;
+demodSignal = demodulate(g, modSignal);
+scatterplot(modSignal);
+\end{verbatim}
+Результаты выполнения представлены на рисунках ниже: 
+
+\begin{figure}[h]
+\begin{center}
+\begin{minipage}[h]{0.4\linewidth}
+\includegraphics[width=1\linewidth]{lab9_bpsk.jpg}
+\caption{Сигнальное созвездие BPSK.} %% подпись к рисунку
+\label{lab9_bpsk} %% метка рисунка для ссылки на него
+\end{minipage}
+\hfill 
+\begin{minipage}[h]{0.4\linewidth}
+\includegraphics[width=1\linewidth]{lab9_psk.jpg}
+\caption{Сигнальное созвездие PSK.}
+\label{lab9_psk}
+\end{minipage}
+\end{center}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\begin{minipage}[h]{0.4\linewidth}
+\includegraphics[width=1\linewidth]{lab9_oqpsk.jpg}
+\caption{Сигнальное созвездие OQPSK.} %% подпись к рисунку
+\label{lab9_oqpsk} %% метка рисунка для ссылки на него
+\end{minipage}
+\hfill 
+\begin{minipage}[h]{0.4\linewidth}
+\includegraphics[width=1\linewidth]{lab9_genqam.jpg}
+\caption{Сигнальное созвездие genQAM.}
+\label{lab9_genqam}
+\end{minipage}
+\end{center}
+\end{figure}
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.4\linewidth]{lab9_MSK.jpg}
+\caption{Сигнальное созвездие MSK.} %% подпись к рисунку
+\label{lab9_msk} %% метка рисунка для ссылки на него
+\end{center}
+\end{figure}
+\FloatBarrier
+
+
+Для создания моделей в Simulink использовался рздел Communication Blockset/Digital Baseband/Passband Modulation. Модель и результаты моделирования представлены ниже:
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=1\linewidth]{lab9_sim.jpg}
+\caption{Модель Simulink.} %% подпись к рисунку
+\label{lab9_sim} %% метка рисунка для ссылки на него
+\end{center}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\begin{minipage}[h]{0.4\linewidth}
+\includegraphics[width=1\linewidth]{lab9_sim_bpsk.jpg}
+\caption{Сигнальное созвездие BPSK.} %% подпись к рисунку
+\label{lab9_sim_bpsk} %% метка рисунка для ссылки на него
+\end{minipage}
+\hfill 
+\begin{minipage}[h]{0.4\linewidth}
+\includegraphics[width=1\linewidth]{lab9_sim_psk.jpg}
+\caption{Сигнальное созвездие PSK.}
+\label{lab9_sim_psk}
+\end{minipage}
+\end{center}
+\end{figure}
+
+\begin{figure}[h!]
+\begin{center}
+\begin{minipage}[h]{0.4\linewidth}
+\includegraphics[width=1\linewidth]{lab9_sim_oqpsk.jpg}
+\caption{Сигнальное созвездие OQPSK.} %% подпись к рисунку
+\label{lab9_sim_oqpsk} %% метка рисунка для ссылки на него
+\end{minipage}
+\hfill 
+\begin{minipage}[h]{0.4\linewidth}
+\includegraphics[width=1\linewidth]{lab9_sim_genqam.jpg}
+\caption{Сигнальное созвездие genQAM.}
+\label{lab9_sim_genqam}
+\end{minipage}
+\end{center}
+\end{figure}
+
+\begin{figure}[h]
+\begin{center}
+\includegraphics[width=0.4\linewidth]{lab9_sim_MSK.jpg}
+\caption{Сигнальное созвездие MSK.} %% подпись к рисунку
+\label{lab9_sim_msk} %% метка рисунка для ссылки на него
+\end{center}
+\end{figure}
+\FloatBarrier
+
+
+\subsection{Выводы}
+Цифровая модуляция — процесс преобразования последовательности кодовых символов в последовательность элементов сигнала. Существуют следующие типы манипуляций: частотная манипуляция, фазовая манипуляция, амплитудная манипуляция, квадратурная амплитудная манипуляция.\\
+Квадратурная амплитудная манипуляция(QAM) — манипуляция, при которой изменяется как фаза, так и амплитуда сигнала, что позволяет увеличить количество информации, передаваемой одним состоянием сигнала. \\
+Фазовая манипуляция(PSK) — один из видов фазовой модуляции, при которой фаза несущего колебания меняется скачкообразно в зависимости от информационного сообщения.\\
+Двоичная фазовая манипуляция — самая простая форма фазовой манипуляции. Работа схемы двоичной ФМн заключается в смещении фазы несущего колебания на одно из двух значений, нуль или $\pi (180\circ)$. Двоичную фазовую манипуляцию можно также рассматривать как частный случай квадратурной манипуляции (QAM-2).\\
+При квадратурной фазовой манипуляции(QPSK) используется созвездие из четырёх точек, размещённых на равных расстояниях на окружности. Используя 4 фазы, в QPSK на символ приходится два бита. Анализ показывает, что скорость может быть увеличена в два раза относительно BPSK при той же полосе сигнала, либо оставить скорость прежней, но уменьшить полосу вдвое.\\
+Частотная манипуляция с минимальным сдвигом(MSK) представляет собой способ модуляции, при котором не происходит скачков фазы и изменение частоты происходит в моменты пересечения несущей нулевого уровня. MSK уникальна потому, что значение частот соответствующих логическим «0» и «1» отличаются на величину равную половине скорости передачи данных. Другими словами, индекс модуляции равен 0,5.\\
+Уровень модуляции определяет количество состояний несущей, используемых для передачи информации. Чем выше этот уровень, тем большими скоростными возможностями и меньшей помехоустойчивостью модуляция обладает. Число бит, передаваемых одним состоянием, определяется как $Log N$, где N — уровень модуляции. Таким образом, чем выше уровень модуляции, тем больше данных мы можем передать (или потерять) за единицу времени.
+\end{document}
